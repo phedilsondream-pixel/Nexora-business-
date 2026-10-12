@@ -61,27 +61,16 @@ async function main() {
     });
   }
 
-  const settings: { key: string; value: any; description: string }[] = [
-    { key: 'trial_enabled', value: true, description: 'Permitir período de teste' },
-    { key: 'trial_days', value: 30, description: 'Dias de trial' },
-    { key: 'default_plan_code', value: 'start', description: 'Plano no registo' },
-    { key: 'allow_free_plans', value: true, description: 'Permitir planos gratuitos' },
-    {
-      key: 'payment_gateway',
-      value: { provider: null, status: 'NOT_CONFIGURED', mode: 'sandbox' },
-      description: 'Gateway de pagamento',
-    },
-    {
-      key: 'agt_config',
-      value: { enabled: false, environment: 'test' },
-      description: 'Configuração AGT',
-    },
+  const settings: { key: string; value: any }[] = [
+    { key: 'trial', value: { enabled: true, days: 30, first_month_free: true } },
+    { key: 'payments', value: { status: 'NOT_CONFIGURED', providers: [] } },
+    { key: 'agt', value: { status: 'PREPARED', license_required: true } },
   ];
 
   for (const s of settings) {
     await prisma.platformSetting.upsert({
       where: { key: s.key },
-      update: { value: s.value, description: s.description },
+      update: { value: s.value },
       create: s,
     });
   }

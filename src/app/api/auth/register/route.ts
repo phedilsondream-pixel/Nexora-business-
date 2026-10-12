@@ -120,11 +120,11 @@ export async function POST(req: NextRequest) {
       await tx.auditLog.create({
         data: {
           organizationId: org.id,
-          actorId: user.id,
+          actorUserId: user.id,
           action: 'organization.create',
           entityType: 'organization',
           entityId: org.id,
-          newData: { name: org.name, slug: org.slug },
+          metadata: { name: org.name, slug: org.slug },
         },
       });
 

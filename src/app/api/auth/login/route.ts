@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     await prisma.auditLog.create({
       data: {
-        actorId: user.id,
+        actorUserId: user.id,
         action: 'auth.login',
         entityType: 'user',
         entityId: user.id,

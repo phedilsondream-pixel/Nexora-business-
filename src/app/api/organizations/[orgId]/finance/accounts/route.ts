@@ -11,7 +11,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     await assertOrgAccess(session.user.id, params.orgId, session.user.isGlobalAdmin);
 
     const accounts = await prisma.financeAccount.findMany({
-      where: { organizationId: params.orgId, deletedAt: null },
+      where: { organizationId: params.orgId, isActive: true },
       orderBy: { name: 'asc' },
     });
     return NextResponse.json({ accounts });
@@ -28,8 +28,6 @@ const createSchema = z.object({
   type: z.enum(['cash', 'bank', 'mobile_money', 'other']),
   currency: z.string().default('AOA'),
   initialBalance: z.number().default(0),
-  bankName: z.string().optional(),
-  accountNumber: z.string().optional(),
 });
 
 export async function POST(req: NextRequest, { params }: Ctx) {
@@ -44,21 +42,18 @@ export async function POST(req: NextRequest, { params }: Ctx) {
         name: data.name,
         type: data.type,
         currency: data.currency,
-        initialBalance: data.initialBalance,
-        currentBalance: data.initialBalance,
-        bankName: data.bankName,
-        accountNumber: data.accountNumber,
+        balance: data.initialBalance,
       },
     });
 
     await prisma.auditLog.create({
       data: {
         organizationId: params.orgId,
-        actorId: session.user.id,
+        actorUserId: session.user.id,
         action: 'finance.account.create',
         entityType: 'finance_account',
         entityId: account.id,
-        newData: { name: account.name },
+        metadata: { name: account.name },
       },
     });
 
